@@ -289,13 +289,64 @@ if archivo:
     )
 
     # ==========================
-    # CERRADOS
-    # ==========================
+# CERRADOS
+# ==========================
 
-    hoy = datetime.today()
+hoy = datetime.today()
 
-    cerrados = df[
-        (
+cerrados = df[
+    (
+        df["Area"]
+        .astype(str)
+        .str.upper()
+        .str.contains(
+            "CERRADO",
+            na=False
+        )
+    )
+    &
+    (
+        df["Fecha cierre"].dt.month
+        == hoy.month
+    )
+    &
+    (
+        df["Fecha cierre"].dt.year
+        == hoy.year
+    )
+].copy()
+
+if len(cerrados) > 0:
+
+    cerrados = (
+        cerrados
+        .sort_values(
+            "Fecha cierre"
+        )
+    )
+
+    consecutivos = []
+
+    for i, (_, fila) in enumerate(
+        cerrados.iterrows(),
+        start=1
+    ):
+
+        consecutivos.append(
+
+            obtener_area_cierre(
+                fila["Fecha cierre"],
+                i
+            )
+
+        )
+
+    cerrados[
+        "Area Resultado"
+    ] = consecutivos
+
+    df = df[
+        ~(
             df["Area"]
             .astype(str)
             .str.upper()
@@ -304,74 +355,15 @@ if archivo:
                 na=False
             )
         )
-        &
-        (
-            df["Fecha cierre"]
-            .dt.month
-            ==
-            hoy.month
-        )
-        &
-        (
-            df["Fecha cierre"]
-            .dt.year
-            ==
-            hoy.year
-        )
-    ].copy()
+    ]
 
-    if len(cerrados) > 0:
-
-        cerrados = (
+    df = pd.concat(
+        [
+            df,
             cerrados
-            .sort_values(
-                "Fecha cierre"
-            )
-        )
-
-        consecutivos = []
-
-        for i, (_, fila) in enumerate(
-    cerrados.iterrows(),
-    start=1
-):
-
-    consecutivos.append(
-
-        obtener_area_cierre(
-
-            fila["Fecha cierre"],
-
-            i
-
-        )
-
+        ],
+        ignore_index=True
     )
-
-        cerrados[
-            "Area Resultado"
-        ] = consecutivos
-
-        df = df[
-            ~(
-                df["Area"]
-                .astype(str)
-                .str.upper()
-                .str.contains(
-                    "CERRADO",
-                    na=False
-                )
-            )
-        ]
-
-        df = pd.concat(
-            [
-                df,
-                cerrados
-            ],
-            ignore_index=True
-        )
-
     # ==========================
     # RESULTADO FINAL
     # ==========================
