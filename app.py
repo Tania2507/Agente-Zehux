@@ -331,24 +331,22 @@ if archivo:
 
         consecutivos = []
 
-        for i, fila in enumerate(
-            cerrados.itertuples(),
-            start=1
-        ):
+        for i, (_, fila) in enumerate(
+    cerrados.iterrows(),
+    start=1
+):
 
-            consecutivos.append(
+    consecutivos.append(
 
-                obtener_area_cierre(
+        obtener_area_cierre(
 
-                    fila._asdict()[
-                        "Fecha_cierre"
-                    ],
+            fila["Fecha cierre"],
 
-                    i
+            i
 
-                )
+        )
 
-            )
+    )
 
         cerrados[
             "Area Resultado"
